@@ -240,3 +240,26 @@ func NewAudioToTextMultipartWriter(w io.Writer, req AudioToTextMultipartRequestB
 
 	return mw, nil
 }
+
+func NewLlmGenerateMultipartWriter(w io.Writer, req BodyLlmGenerateLlmGeneratePost) (*multipart.Writer, error) {
+	mw := multipart.NewWriter(w)
+
+	// Write the prompt field
+	if err := mw.WriteField("prompt", req.Prompt); err != nil {
+		return nil, fmt.Errorf("failed to write prompt field: %w", err)
+	}
+
+	// Write the model_id field if it's not nil
+	if req.ModelId != nil {
+		if err := mw.WriteField("model_id", *req.ModelId); err != nil {
+			return nil, fmt.Errorf("failed to write model_id field: %w", err)
+		}
+	}
+
+	// Close the multipart writer
+	if err := mw.Close(); err != nil {
+		return nil, fmt.Errorf("failed to close multipart writer: %w", err)
+	}
+
+	return mw, nil
+}
