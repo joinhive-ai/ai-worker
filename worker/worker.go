@@ -304,8 +304,8 @@ func (w *Worker) AudioToText(ctx context.Context, req AudioToTextMultipartReques
 	return resp.JSON200, nil
 }
 
-func (w *Worker) LlmGenerate(ctx context.Context, req BodyLlmGenerateLlmGeneratePost) (*TextResponse, error) {
-	c, err := w.borrowContainer(ctx, "llm", *req.ModelId)
+func (w *Worker) LlmGenerate(ctx context.Context, req BodyLlmGenerateLlmGeneratePost) (*LlmResponse, error) {
+	c, err := w.borrowContainer(ctx, "llm-generate", *req.ModelId)
 	if err != nil {
 		return nil, err
 	}
@@ -327,8 +327,8 @@ func (w *Worker) LlmGenerate(ctx context.Context, req BodyLlmGenerateLlmGenerate
 		if err != nil {
 			return nil, err
 		}
-		slog.Error("llm container returned 400", slog.String("err", string(val)))
-		return nil, errors.New("llm container returned 400")
+		slog.Error("llm-generate container returned 400", slog.String("err", string(val)))
+		return nil, errors.New("llm-generate container returned 400")
 	}
 
 	if resp.JSON401 != nil {
@@ -336,8 +336,8 @@ func (w *Worker) LlmGenerate(ctx context.Context, req BodyLlmGenerateLlmGenerate
 		if err != nil {
 			return nil, err
 		}
-		slog.Error("llm container returned 401", slog.String("err", string(val)))
-		return nil, errors.New("llm container returned 401")
+		slog.Error("llm-generate container returned 401", slog.String("err", string(val)))
+		return nil, errors.New("llm-generate container returned 401")
 	}
 
 	if resp.JSON500 != nil {
@@ -345,12 +345,13 @@ func (w *Worker) LlmGenerate(ctx context.Context, req BodyLlmGenerateLlmGenerate
 		if err != nil {
 			return nil, err
 		}
-		slog.Error("llm container returned 500", slog.String("err", string(val)))
-		return nil, errors.New("llm container returned 500")
+		slog.Error("llm-generate container returned 500", slog.String("err", string(val)))
+		return nil, errors.New("llm-generate container returned 500")
 	}
 
 	return resp.JSON200, nil
 }
+
 func (w *Worker) Warm(ctx context.Context, pipeline string, modelID string, endpoint RunnerEndpoint, optimizationFlags OptimizationFlags) error {
 	if endpoint.URL == "" {
 		return w.manager.Warm(ctx, pipeline, modelID, optimizationFlags)
