@@ -52,8 +52,8 @@ def load_pipeline(pipeline: str, model_id: str) -> any:
             from app.pipelines.upscale import UpscalePipeline
 
             return UpscalePipeline(model_id)
-        case "llm":
-            from runner.app.pipelines.llm_generate import LLMGeneratePipeline
+        case "llm-generate":
+            from app.pipelines.llm_generate import LLMGeneratePipeline
             return LLMGeneratePipeline(model_id)
         case _:
             raise EnvironmentError(
