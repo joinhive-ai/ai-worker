@@ -55,6 +55,7 @@ async def llm_generate(
             temperature=temperature,
             max_tokens=max_tokens,
         )
+        
         return JSONResponse(content=result)
     except Exception as e:
         logger.error(f"LLM processing error: {str(e)}")

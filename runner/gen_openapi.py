@@ -90,7 +90,6 @@ def write_openapi(fname, entrypoint="runner"):
     app.include_router(frame_interpolation.router)
     app.include_router(upscale.router)
 
-
     use_route_names_as_operation_ids(app)
 
     print(f"Generating OpenAPI schema for '{entrypoint}' entrypoint...")

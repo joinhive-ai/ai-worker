@@ -1,8 +1,8 @@
 import logging
 import os
+
 from threading import Thread
 from typing import Dict, Any, Optional
-
 import torch
 from transformers import AutoTokenizer, AutoModelForCausalLM, GenerationConfig, TextIteratorStreamer
 from app.pipelines.base import Pipeline
