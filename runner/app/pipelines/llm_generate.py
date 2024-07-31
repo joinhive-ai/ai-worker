@@ -15,9 +15,7 @@ class LLMGeneratePipeline(Pipeline):
     def __init__(self, model_id: str):
         self.model_id = model_id
         kwargs = {
-            "cache_dir": get_model_dir(),
-            "local_files_only": True,  # Add this to force using local files
-            "trust_remote_code": True,  # Add this to handle custom model code
+            "cache_dir": get_model_dir()
         }
         self.device = get_torch_device()
         folder_name = file_download.repo_folder_name(
