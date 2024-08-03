@@ -78,8 +78,7 @@ class LLMGeneratePipeline(Pipeline):
                           )  # Ceiling division
 
         if gpus_needed > num_gpus:
-            logger.warning(f"Model might not fit in available GPU memory. Attempting to use all {
-                           num_gpus} GPUs.")
+            logger.warning(f"Model might not fit in available GPU memory. Attempting to use all {num_gpus} GPUs.")
             gpus_needed = num_gpus
 
         # Create a balanced device map
