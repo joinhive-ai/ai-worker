@@ -1,12 +1,12 @@
 import logging
 import os
-from typing import Annotated, Optional, List
-from fastapi import APIRouter, Depends, Form, status, Request
+from typing import Annotated
+from fastapi import APIRouter, Depends, Form, status
 from fastapi.responses import JSONResponse, StreamingResponse
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from app.dependencies import get_pipeline
 from app.pipelines.base import Pipeline
-from app.routes.util import HTTPError, LlmResponse, TextResponse, http_error
+from app.routes.util import HTTPError, LlmResponse, http_error
 import json
 
 router = APIRouter()
@@ -32,6 +32,7 @@ async def llm_generate(
     max_tokens: Annotated[int, Form()] = 256,
     history: Annotated[str, Form()] = "[]",  # We'll parse this as JSON
     stream: Annotated[bool, Form()] = False,
+    lora_weights: Annotated[str, Form()] = None,  # New parameter for LoRA weights
     pipeline: Pipeline = Depends(get_pipeline),
     token: HTTPAuthorizationCredentials = Depends(HTTPBearer(auto_error=False)),
 ):
@@ -58,18 +59,33 @@ async def llm_generate(
         if not isinstance(history_list, list):
             raise ValueError("History must be a JSON array")
 
+        # Validate LoRA weights if provided
+        if lora_weights:
+            try:
+                # Attempt to decode base64 string
+                import base64
+                base64.b64decode(lora_weights)
+            except:
+                return JSONResponse(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    content=http_error(
+                        "Invalid LoRA weights format. Must be a valid base64 string.")
+                )
+
         generator = pipeline(
             prompt=prompt,
             history=history_list,
             system_msg=system_msg if system_msg else None,
             temperature=temperature,
-            max_tokens=max_tokens
+            max_tokens=max_tokens,
+            lora_weights=lora_weights  # Pass LoRA weights to the pipeline
         )
 
         if stream:
             return StreamingResponse(stream_generator(generator), media_type="text/event-stream")
         else:
             full_response = ""
+            tokens_used = 0
             async for chunk in generator:
                 if isinstance(chunk, dict):
                     tokens_used = chunk["tokens_used"]
